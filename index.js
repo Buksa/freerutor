@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-//ver 0.0.5
+//ver 0.0.6
 
 // parsit plugin.json 
 var plugin = JSON.parse(Plugin.manifest);
