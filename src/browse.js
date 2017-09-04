@@ -3,7 +3,7 @@ data = {};
 //obrabotka spiska 
 //nagladnyj primer v chrome  http://freerutor.org/page/1
 /* primer vyvod v konsol' 
-[... document.getElementsByClassName("fr_screen")].forEach(function (e) {
+[... document.getElementsByClassName("fr_viewn_in")].forEach(function (e) {
       console.log({
         url: e.getElementsByTagName("a")[0].attributes.getNamedItem("href").value,
         title: e.getElementsByTagName("img")[0].attributes.getNamedItem("title").value,
@@ -15,13 +15,17 @@ function ScrapeList(pageHtml) {
   var returnValue = [];
   content = pageHtml.dom.getElementById("dle-content");
   if (content) {
-    content.getElementByClassName("fr_screen").forEach(function (e) {
+    content.getElementByClassName("fr_viewn_in").forEach(function (e) {
+      desc = e.textContent.replace("Оригинальное наименование:", "\nОригинальное наименование:").replace('Произведено:', '\nПроизведено:').replace('Категория:', '\nКатегория:').replace('Режиссер постановщик: ', '\nРежиссер постановщик:').replace("В главных ролях:", "\nВ главных ролях:")
       returnValue.push({
         url: e.getElementByTagName("a")[0].attributes.getNamedItem("href").value,
         title: e.getElementByTagName("img")[0].attributes.getNamedItem("title").value,
         icon: e.getElementByTagName("img")[0].attributes.getNamedItem("src").value,
+        description: desc
       });
     });
+    console.log(('\nПроизведено\n:'))
+    console.log(("Telohranitelj killera 2017 WEB-DL 720p.mkv<font color=\"EE0000\">246</font>) "))
   }
   //document.getElementsByClassName("fr_navigation")[0].children[document.getElementsByClassName("fr_navigation")[0].children.length - 1].nodeName
   if (pageHtml.dom.getElementByClassName("fr_navigation").length !== 0) {
@@ -141,6 +145,15 @@ exports.moviepage = function (page, mdata) {
     text: resp,
     dom: html.parse(resp).root
   };
+  //
+  try {
+    if (pageHtml.dom.getElementByClassName('fr_hid')[0].getElementByTagName("a")[0].attributes.getNamedItem("href").value) {
+      page.metadata.backgroundAlpha = 10;
+      page.metadata.background = pageHtml.dom.getElementByClassName('fr_hid')[0].getElementByTagName("a")[0].attributes.getNamedItem("href").value;
+    }
+  } catch (err) {
+    console.error(err)
+  }
 
   //trailer
   try {
