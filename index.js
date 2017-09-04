@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-//ver 0.0.1
+//ver 0.0.5
 
 // parsit plugin.json 
 var plugin = JSON.parse(Plugin.manifest);
@@ -38,6 +38,12 @@ var prop = require("showtime/prop");
 
 var http = require("showtime/http");
 var html = require("showtime/html");
+// fail browse browse.js 
+var browse = require("./src/browse");
+// log 
+var log = require("./src/log");
+// api
+//var api = require("./src/api");
 
 // http inspector pri zaprose na domen freerutor.org movian budet spufit' useragent v referala
 io.httpInspectorCreate('.*freerutor.org.*', function (ctrl) {
@@ -53,11 +59,42 @@ service.create(plugin.title, PREFIX + ":start", "video", true, LOGO);
 settings.globalSettings("settings", plugin.title, LOGO, plugin.synopsis);
 settings.createInfo("info", LOGO, "Plugin developed by " + plugin.author + ". \n");
 settings.createDivider("Settings:");
-settings.createBool("tosaccepted", "Accepted TOS (available in opening the plugin)", false, function (v) {
-    service.tosaccepted = v;
-});
 settings.createBool("debug", "Debug", false, function (v) {
     service.debug = v;
+});
+
+// put' dlay obrabotki browse
+new page.Route(PREFIX + ":browse:(.*):(.*)", function (page, href, title) {
+    //vyzov function list iz file browse.js s parametrami href title
+    browse.list(page, {
+        href: href,
+        title: title
+    });
+});
+//put' dlya obrabotki moviepage
+new page.Route(PREFIX + ":moviepage:(.*)", function (page, data) {
+    //vyzov function moviepage iz file browse.js s parametrami data
+    browse.moviepage(page, data);
+});
+
+//put' dlya obrabotki search so stranicy plaga
+new page.Route(PREFIX + ":search:(.*)", function (page, query) {
+    page.metadata.icon = LOGO;
+    page.metadata.title = "Search results for: " + query;
+    //  page.type = 'directory';
+    //index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=lost
+    browse.list(page, {
+        href: "/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=" + query,
+        title: query
+    });
+});
+// seacher dlya globalnogo poiska
+page.Searcher(PREFIX + " - Result", LOGO, function (page, query) {
+    page.metadata.icon = LOGO;
+    browse.list(page, {
+        href: "/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=" + query,
+        title: query
+    });
 });
 
 // Landing page
@@ -66,20 +103,26 @@ new page.Route(PREFIX + ":start", function (page) {
     page.type = "directory";
     page.metadata.title = PREFIX;
     page.metadata.icon = LOGO;
-    
+    // dobodlyaen poisk na start page bydet vyzavat' uri PREFIX + ":search:"+zapros
+    page.appendItem(PREFIX + ":search:", "search", {
+        title: "Search freerutor"
+    });
+
     // categorii so stranicy
     // http://freerutor.org/ v chrome ctrl+shift+i zakladka elements crtl+shift+c
     // ishem class gde nashi kategorii > fr_menu
     // zakladka console  vvodem document.getElementsByClassName("fr_menu")[1];
     // ento nash block s kotorum my budem rabotat'
 
-    // [...document.getElementsByClassName("fr_menu")[1].children].forEach(function (i) {
-    //     href = i.getElementsByTagName("a")[0].attributes.getNamedItem("href").value;
-    //     title = i.getElementsByTagName("a")[0].text;
-    //     console.log('page.appendItem(PREFIX + ":browse:' + href + ':' + title + '", "directory", { title: ' + title + '});')
-    // })
+    /* naglyadnyj primer vyvod v konsol' 
+    [...document.getElementsByClassName("fr_menu")[1].children].forEach(function (i) {
+         href = i.getElementsByTagName("a")[0].attributes.getNamedItem("href").value;
+         title = i.getElementsByTagName("a")[0].text;
+         console.log('page.appendItem(PREFIX + ":browse:' + href + ':' + title + '", "directory", { title: ' + title + '});')
+     });
+     */
 
-    //sozdaet item na stranice budet vyzyvat' function browse s paremetrami href i title
+    //sozdaet item na stranice budet vyzyvat' PREFIX + ":browse:(href):(title)"
     page.appendItem(PREFIX + ":browse:/filmy:Фильмы", "directory", {
         title: "Фильмы"
     });
@@ -97,4 +140,3 @@ new page.Route(PREFIX + ":start", function (page) {
     });
 
 });
-
