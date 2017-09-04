@@ -1,7 +1,7 @@
 data = {};
 
 //obrabotka spiska 
-// nagladnyj primer v chrome  http://freerutor.org/page/1
+//nagladnyj primer v chrome  http://freerutor.org/page/1
 /* primer vyvod v konsol' 
 [... document.getElementsByClassName("fr_screen")].forEach(function (e) {
       console.log({
@@ -103,7 +103,6 @@ exports.list = function (page, params) {
       text: resp,
       dom: html.parse(resp).root
     };
-    log.d(pageHtml);
     /do=search/.test(url) ? list = ScrapeSearch(pageHtml) : list = ScrapeList(pageHtml);
     populateItemsFromList(page, list);
     nextPage++;
@@ -127,8 +126,6 @@ exports.list = function (page, params) {
 // vyzov s url
 // PREFIX:moviepage:url
 exports.moviepage = function (page, mdata) {
-  page.metadata.title = mdata.title;
-  page.metadata.logo = data.icon;
   page.loading = true;
   page.type = "directory";
   /{"url":"/.test(mdata) ? (data = JSON.parse(mdata)) : (data.url = mdata);
@@ -136,6 +133,7 @@ exports.moviepage = function (page, mdata) {
     function: "moviepage",
     data: data
   });
+  page.metadata.title = data.title;
   page.metadata.logo = data.icon;
   //delaem zapros na stranicu
   var resp = http.request(data.url);
@@ -158,7 +156,36 @@ exports.moviepage = function (page, mdata) {
       title: e.textContent
     });
   });
-
+  try {
+    // dobovlyaem seporator poxozhie
+    fr_rela = pageHtml.dom.getElementByClassName('fr_rela')[0];
+    if (fr_rela) {
+      page.appendItem("", "separator", {
+        title: 'Похожие'
+      });
+      //obrabotka spiska 
+      //nagladnyj primer v chrome  http://freerutor.org/497873-plohoy-frenk-2017-web-dlrip
+      /*
+        [... document.getElementsByClassName('fr_rela')[0].getElementsByTagName("a")].forEach(function (e) {
+        console.log({
+          url: e.attributes.getNamedItem("href").value,
+          title: e.attributes.getNamedItem("title").value,
+        });
+      });
+      */
+      fr_rela.getElementByTagName("a").forEach(function (e) {
+        data = {
+          url: e.attributes.getNamedItem("href").value,
+          title: e.attributes.getNamedItem("title").value
+        }
+        page.appendItem(PREFIX + ":moviepage:" + JSON.stringify(data), "directory", {
+          title: data.title
+        });
+      });
+    }
+  } catch (err) {
+    console.error(err)
+  };
   //list = ScrapePage(pageHtml);
   //populateItemsFromList(page, list);
 
