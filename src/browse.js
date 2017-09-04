@@ -24,8 +24,6 @@ function ScrapeList(pageHtml) {
         description: desc
       });
     });
-    console.log(('\nПроизведено\n:'))
-    console.log(("Telohranitelj killera 2017 WEB-DL 720p.mkv<font color=\"EE0000\">246</font>) "))
   }
   //document.getElementsByClassName("fr_navigation")[0].children[document.getElementsByClassName("fr_navigation")[0].children.length - 1].nodeName
   if (pageHtml.dom.getElementByClassName("fr_navigation").length !== 0) {
@@ -145,10 +143,10 @@ exports.moviepage = function (page, mdata) {
     text: resp,
     dom: html.parse(resp).root
   };
-  //
+  //background
   try {
     if (pageHtml.dom.getElementByClassName('fr_hid')[0].getElementByTagName("a")[0].attributes.getNamedItem("href").value) {
-      page.metadata.backgroundAlpha = 10;
+      page.metadata.backgroundAlpha = 10;//?
       page.metadata.background = pageHtml.dom.getElementByClassName('fr_hid')[0].getElementByTagName("a")[0].attributes.getNamedItem("href").value;
     }
   } catch (err) {
