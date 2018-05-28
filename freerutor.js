@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-//ver 0.0.12
+//ver 0.0.13
 
 // parsit plugin.json
 var plugin = JSON.parse(Plugin.manifest);
@@ -55,7 +55,7 @@ service.create(plugin.title, PREFIX + ':start', 'video', true, LOGO);
 settings.globalSettings(plugin.id, plugin.title, LOGO, plugin.synopsis);
 settings.createInfo('info', LOGO, 'Plugin developed by ' + plugin.author + '. \n');
 settings.createDivider('Settings:');
-settings.createString("domain", "Домен", "http://freerutor.org", function(v) {
+settings.createString("domain", "Домен", "http://freerutor.club", function(v) {
     service.domain = v;
 });
 settings.createBool('debug', 'Debug', false, function(v) {

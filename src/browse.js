@@ -14,7 +14,7 @@ function ScrapeList(pageHtml) {
   var returnValue = [];
   content = pageHtml.dom.getElementById('dle-content');
   if (content) {
-    content.getElementByClassName('fr_viewn_in').forEach(function(e) {
+    content.getElementByClassName('short-item').forEach(function(e) {
       desc = e.textContent
         .replace('Оригинальное наименование:', '\nОригинальное наименование:')
         .replace('Произведено:', '\nПроизведено:')
@@ -23,16 +23,16 @@ function ScrapeList(pageHtml) {
         .replace('В главных ролях:', '\nВ главных ролях:');
       returnValue.push({
         url: e.getElementByTagName('a')[0].attributes.getNamedItem('href').value,
-        title: e.getElementByTagName('img')[0].attributes.getNamedItem('title').value,
+        title: e.getElementByTagName('img')[0].attributes.getNamedItem('alt').value,
         icon: e.getElementByTagName('img')[0].attributes.getNamedItem('src').value,
         description: desc
       });
     });
   }
   //document.getElementsByClassName("fr_navigation")[0].children[document.getElementsByClassName("fr_navigation")[0].children.length - 1].nodeName
-  var fr_navigation = pageHtml.dom.getElementByClassName('fr_navigation');
-  if (fr_navigation.length !== 0) {
-    returnValue.endOfData = fr_navigation[0].children[fr_navigation[0].children.length - 1].nodeName !== 'a';
+  var navigation = pageHtml.dom.getElementByClassName('navigation');
+  if (navigation.length !== 0) {
+    returnValue.endOfData = navigation[0].children[navigation[0].children.length - 1].nodeName !== 'a';
   } else returnValue.endOfData = true;
   return returnValue;
 }
@@ -51,9 +51,9 @@ function ScrapeSearch(pageHtml) {
     });
   }
   //document.getElementsByClassName("fr_navigation")[0].children[document.getElementsByClassName("fr_navigation")[0].children.length - 1].nodeName
-  var fr_navigation = pageHtml.dom.getElementByClassName('fr_navigation');
-  if (fr_navigation.length !== 0) {
-    returnValue.endOfData = fr_navigation[0].children[fr_navigation[0].children.length - 1].nodeName !== 'a';
+  var navigation = pageHtml.dom.getElementByClassName('navigation');
+  if (navigation.length !== 0) {
+    returnValue.endOfData = navigation[0].children[navigation[0].children.length - 1].nodeName !== 'a';
   } else returnValue.endOfData = true;
   return returnValue;
 }
@@ -104,6 +104,7 @@ exports.list = function(page, params) {
     // params.page = "/page/" + nextPage;
     // page.haveMore(list !== undefined && list.endOfData !== undefined && !list.endOfData);
     api.call(page, BASE_URL + url, null, function(pageHtml) {
+      console.log(pageHtml);
       /do=search/.test(url) ? (list = ScrapeSearch(pageHtml)) : (list = ScrapeList(pageHtml));
       populateItemsFromList(page, list);
       nextPage++;
@@ -161,7 +162,7 @@ function videoLinks(page) {
   try {
     var seed = pageHtml.dom.getElementByClassName('frsks')[0].textContent;
     var peer = pageHtml.dom.getElementByClassName('frskp')[0].textContent;
-    var links = pageHtml.dom.getElementByClassName('fr_download');
+    var links = pageHtml.dom.getElementByClassName('mdow')[0].children;
     links.forEach(function(e) {
       uri = e.attributes.getNamedItem('href').value.replace('/engine/', BASE_URL + '/engine/');
       title = e.textContent.replace('Скачать торрент', 'Торрент ссылка ' + '[' + seed + '/' + peer + ']');
