@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-//ver 0.0.8
+//ver 0.0.12
 
 // parsit plugin.json
 var plugin = JSON.parse(Plugin.manifest);
@@ -24,11 +24,8 @@ var plugin = JSON.parse(Plugin.manifest);
 var PREFIX = plugin.id;
 //logo beret iz kornevoj papki s plago
 var LOGO = Plugin.path + 'logo.png';
-// adress sajta
-var BASE_URL = 'http://freerutor.org';
 //user agent mestami nuzhno spofit'
-var UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36';
+var UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36';
 
 var result = '',
   referer = BASE_URL,
@@ -50,25 +47,31 @@ var log = require('./src/log');
 // api
 var api = require('./src/api');
 
-// http inspector pri zaprose na domen freerutor.org movian budet spufit' useragent v referala
-io.httpInspectorCreate('.*freerutor.org.*', function(ctrl) {
-  ctrl.setHeader('User-Agent', UA);
-  ctrl.setHeader('Referer', 'http://freerutor.org/');
-});
 
 // Create the service (ie, icon on home screen)
 service.create(plugin.title, PREFIX + ':start', 'video', true, LOGO);
 // Create the settings
 //stranica nastroik plagina
-settings.globalSettings('settings', plugin.title, LOGO, plugin.synopsis);
+settings.globalSettings(plugin.id, plugin.title, LOGO, plugin.synopsis);
 settings.createInfo('info', LOGO, 'Plugin developed by ' + plugin.author + '. \n');
 settings.createDivider('Settings:');
+settings.createString("domain", "Домен", "http://freerutor.org", function(v) {
+    service.domain = v;
+});
 settings.createBool('debug', 'Debug', false, function(v) {
   service.debug = v;
 });
 settings.createBool('bg', 'Background', true, function(v) {
     service.bg = v;
-  });
+});
+
+// adress sajta
+var BASE_URL = service.domain;
+// http inspector pri zaprose na domen freerutor.org movian budet spufit' useragent v referala
+io.httpInspectorCreate(service.domain+'.*', function(ctrl) {
+  ctrl.setHeader('User-Agent', UA);
+  ctrl.setHeader('Referer', service.domain);
+});
 
 // put' dlay obrabotki browse
 new page.Route(PREFIX + ':browse:(.*):(.*)', function(page, href, title) {
@@ -92,15 +95,18 @@ new page.Route(PREFIX + ':search:(.*)', function(page, query) {
   //index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=lost
   browse.list(page, {
     href: '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=' + query,
-    title: query
+    title: query,
+    search: 1 
   });
 });
 // seacher dlya globalnogo poiska
-page.Searcher(PREFIX + ' - Result', LOGO, function(page, query) {
+page.Searcher(PREFIX, LOGO, function(page, query) {
   page.metadata.icon = LOGO;
+  //page.metadata.title = 'Search results for: ' + query;
   browse.list(page, {
     href: '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=' + query,
-    title: query
+    title: query,
+    search: 1
   });
 });
 
