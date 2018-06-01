@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-//ver 0.0.13
+//ver 0.0.14
 
 // parsit plugin.json
 var plugin = JSON.parse(Plugin.manifest);
@@ -25,7 +25,8 @@ var PREFIX = plugin.id;
 //logo beret iz kornevoj papki s plago
 var LOGO = Plugin.path + 'logo.png';
 //user agent mestami nuzhno spofit'
-var UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36';
+var UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36';
 
 var result = '',
   referer = BASE_URL,
@@ -47,7 +48,6 @@ var log = require('./src/log');
 // api
 var api = require('./src/api');
 
-
 // Create the service (ie, icon on home screen)
 service.create(plugin.title, PREFIX + ':start', 'video', true, LOGO);
 // Create the settings
@@ -55,20 +55,20 @@ service.create(plugin.title, PREFIX + ':start', 'video', true, LOGO);
 settings.globalSettings(plugin.id, plugin.title, LOGO, plugin.synopsis);
 settings.createInfo('info', LOGO, 'Plugin developed by ' + plugin.author + '. \n');
 settings.createDivider('Settings:');
-settings.createString("domain", "Домен", "http://freerutor.club", function(v) {
-    service.domain = v;
+settings.createString('domain', 'Домен', 'http://freerutor.club', function(v) {
+  service.domain = v;
 });
 settings.createBool('debug', 'Debug', false, function(v) {
   service.debug = v;
 });
 settings.createBool('bg', 'Background', true, function(v) {
-    service.bg = v;
+  service.bg = v;
 });
 
 // adress sajta
 var BASE_URL = service.domain;
 // http inspector pri zaprose na domen freerutor.org movian budet spufit' useragent v referala
-io.httpInspectorCreate(service.domain+'.*', function(ctrl) {
+io.httpInspectorCreate(service.domain + '.*', function(ctrl) {
   ctrl.setHeader('User-Agent', UA);
   ctrl.setHeader('Referer', service.domain);
 });
@@ -96,7 +96,7 @@ new page.Route(PREFIX + ':search:(.*)', function(page, query) {
   browse.list(page, {
     href: '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=' + query,
     title: query,
-    search: 1 
+    search: 1
   });
 });
 // seacher dlya globalnogo poiska
@@ -136,19 +136,42 @@ new page.Route(PREFIX + ':start', function(page) {
      */
 
   //sozdaet item na stranice budet vyzyvat' PREFIX + ":browse:(href):(title)"
-  page.appendItem(PREFIX + ':browse:/filmy:Фильмы', 'directory', {
-    title: 'Фильмы'
-  });
-  page.appendItem(PREFIX + ':browse:/mult:Мультфильмы', 'directory', {
-    title: 'Мультфильмы'
-  });
-  page.appendItem(PREFIX + ':browse:/serials:Русские сериалы', 'directory', {
-    title: 'Русские сериалы'
-  });
-  page.appendItem(PREFIX + ':browse:/zarubezhnye-serialy-tor:Зарубежные сериалы', 'directory', {
-    title: 'Зарубежные сериалы'
-  });
-  page.appendItem(PREFIX + ':browse:/tv:ТВ передачи', 'directory', {
-    title: 'ТВ передачи'
-  });
+page.appendItem('', 'separator', {title: 'Фильмы'});
+page.appendItem(PREFIX + ':browse:/filmy/torrent-novinki-tor:Новинки кинопроката', 'directory', {
+  title: 'Новинки кинопроката'
+});
+page.appendItem(PREFIX + ':browse:/filmy/films-tor:Фильмы (DVDRip,SATRip)', 'directory', {
+  title: 'Фильмы (DVDRip,SATRip)'
+});
+page.appendItem(PREFIX + ':browse:/filmy/filmy-dvd-5:Фильмы (DVD-5,DVD-9)', 'directory', {
+  title: 'Фильмы (DVD-5,DVD-9)'
+});
+page.appendItem(PREFIX + ':browse:/filmy/filmshd:HDRip,WEB-DLRip', 'directory', { title: 'Фильмы HDRip,WEB-DLRip' });
+page.appendItem(PREFIX + ':browse:/filmy/filmy720:Фильмы 720P,1080P,Blu-Ray', 'directory', {
+  title: 'Фильмы 720P,1080P,Blu-Ray'
+});
+page.appendItem(PREFIX + ':browse:/filmy/filmy-avc:Фильмы (AVC)', 'directory', { title: 'Фильмы (AVC)' });
+page.appendItem(PREFIX + ':browse:/filmy/3d-filmy-torrent:3D фильмы', 'directory', { title: '3D фильмы' });
+page.appendItem(PREFIX + ':browse:/filmy/4k_ultra:4K фильмы', 'directory', { title: '4K фильмы' });
+page.appendItem(PREFIX + ':browse:/filmy:Все Фильмы', 'directory', { title: 'Все Фильмы' });
+page.appendItem('', 'separator', {title: 'Мульфильмы'});
+page.appendItem(PREFIX + ':browse:/mult:Мульфильмы', 'directory', { title: 'Мульфильмы' });
+page.appendItem(PREFIX + ':browse:/mult/multserialy:Мультсериалы', 'directory', { title: 'Мультсериалы' });
+page.appendItem(PREFIX + ':browse:/mult/3d-multfilmy:3D мультфильмы', 'directory', { title: '3D мультфильмы' });
+page.appendItem('', 'separator', {title: 'Cериалы'});
+page.appendItem(PREFIX + ':browse:/serials:Русские сериалы', 'directory', { title: 'Русские сериалы' });
+page.appendItem(PREFIX + ':browse:/zarubezhnye-serialy-tor:Зарубежные сериалы', 'directory', {
+  title: 'Зарубежные сериалы'
+});
+page.appendItem(PREFIX + ':browse:/zarubezhnye-serialy-tor/serialy720:Cериалы 720P,1080P', 'directory', {
+  title: 'Cериалы 720P,1080P'
+});
+page.appendItem('', 'separator', {title: 'Разное'});
+page.appendItem(PREFIX + ':browse:/tv:ТВ передачи', 'directory', { title: 'ТВ передачи' });
+page.appendItem(PREFIX + ':browse:/tv/dokumentalnyy:Документальный', 'directory', { title: 'Документальный' });
+page.appendItem(PREFIX + ':browse:/tv/umor:Юмор', 'directory', { title: 'Юмор' });
+page.appendItem(PREFIX + ':browse:/sport:Спорт', 'directory', { title: 'Спорт' });
+page.appendItem(PREFIX + ':browse:/mp3:Музыка', 'directory', { title: 'Музыка' });
+page.appendItem(PREFIX + ':browse:/mp3/video-klipy:Видео клипы', 'directory', { title: 'Видео клипы' });
+page.appendItem(PREFIX + ':browse:/audio-kniki-torrent:Аудио книги', 'directory', { title: 'Аудио книги' });
 });

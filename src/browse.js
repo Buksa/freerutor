@@ -2,7 +2,7 @@ data = {};
 //obrabotka spiska
 //nagladnyj primer v chrome  http://freerutor.org/page/1
 /* primer vyvod v konsol' 
-[... document.getElementsByClassName("fr_viewn_in")].forEach(function (e) {
+[... document.getElementsByClassName("short-item")].forEach(function (e) {
       console.log({
         url: e.getElementsByTagName("a")[0].attributes.getNamedItem("href").value,
         title: e.getElementsByTagName("img")[0].attributes.getNamedItem("title").value,
@@ -10,7 +10,8 @@ data = {};
       })
     });
  */
-function ScrapeList(pageHtml) {
+
+ function ScrapeList(pageHtml) {
   var returnValue = [];
   content = pageHtml.dom.getElementById('dle-content');
   if (content) {
@@ -73,11 +74,12 @@ function populateItemsFromList(page, list) {
     page.entries++;
   }
 }
+
 exports.list = function(page, params) {
   url = params.page ? params.href + params.page : params.href; //+ "/";
   page.loading = true;
   page.metadata.logo = LOGO;
-  page.metadata.title = params.search ?page.metadata.title :params.title;
+  page.metadata.title = params.search ? page.metadata.title : params.title;
   //page.model.contents = "grid";
   page.type = 'directory';
   page.entries = 0;
