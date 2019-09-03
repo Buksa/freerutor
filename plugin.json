@@ -2,14 +2,14 @@
     "type": "ecmascript",
     "apiversion": 2,
     "id": "freerutor",
-    "file": "freerutor.js",
+    "file": "index.js",
     "showtimeVersion": "5",
-    "version": "0.0.15",
+    "version": "0.1.1",
     "author": "Buksa",
     "title": "freerutor",
-    "icon": "logo.png",
     "category": "video",
     "synopsis": "freerutor-трекер",
     "description": "<p>freerutor plugin - is the integration of the website <a href=\"http://freerutor.org\">freerutor.org</a> into Movian",
-    "homepage": "https://github.com/Buksa/freerutor"
+    "homepage": "https://github.com/Buksa/freerutor",
+    "icon": "https://drive.google.com/uc?export=download&id=1rAUZq6-UbFoXq6Jg9WlnbagSemSLiIbJ"
 }
