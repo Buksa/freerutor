@@ -2,38 +2,48 @@ data = {};
 //obrabotka spiska
 //nagladnyj primer v chrome  http://freerutor.org/page/1
 /* primer vyvod v konsol' 
-[... document.getElementsByClassName("short-item")].forEach(function (e) {
+[... document.getElementsByClassName("tp1_body")].forEach(function (e) {
       console.log({
         url: e.getElementsByTagName("a")[0].attributes.getNamedItem("href").value,
-        title: e.getElementsByTagName("img")[0].attributes.getNamedItem("title").value,
+        title: e.getElementsByTagName("img")[0].attributes.getNamedItem("alt").value,
         icon: e.getElementsByTagName("img")[0].attributes.getNamedItem("src").value,
       })
     });
  */
 
- function ScrapeList(pageHtml) {
+function ScrapeList(pageHtml) {
   var returnValue = [];
+  //document.getElementsByClassName("main__content")
   content = pageHtml.dom.getElementById('dle-content');
+  //content = pageHtml.dom.getElementByClassName("main__content")[0];
   if (content) {
-    content.getElementByClassName('short-item').forEach(function(e) {
+    content.getElementByClassName('tp1_body').forEach(function (e) {
       desc = e.textContent
         .replace('Оригинальное наименование:', '\nОригинальное наименование:')
+        .replace('Оригинальное название:', '\Оригинальное название:')
         .replace('Произведено:', '\nПроизведено:')
         .replace('Категория:', '\nКатегория:')
         .replace('Режиссер постановщик: ', '\nРежиссер постановщик:')
-        .replace('В главных ролях:', '\nВ главных ролях:');
+        .replace('В главных ролях:', '\nВ главных ролях:')
+        .replace('Название:', '\nНазвание:')
+        .replace('Оригинальное название:', '\nОригинальное название:')
+        .replace('Год выпуска:', '\nГод выпуска:')
+        .replace('Жанр:', '\nЖанр:')
+        .replace('Выпущено:', '\nВыпущено:')
+        .replace('Режиссер:', '\nРежиссер:')
+        .replace('В ролях:', '\nВ ролях:')
       returnValue.push({
         url: e.getElementByTagName('a')[0].attributes.getNamedItem('href').value,
         title: e.getElementByTagName('img')[0].attributes.getNamedItem('alt').value,
         icon: e.getElementByTagName('img')[0].attributes.getNamedItem('src').value,
-        description: desc
+       // description: desc
       });
     });
   }
   //document.getElementsByClassName("fr_navigation")[0].children[document.getElementsByClassName("fr_navigation")[0].children.length - 1].nodeName
-  var navigation = pageHtml.dom.getElementByClassName('navigation');
+  var navigation = pageHtml.dom.getElementByClassName('paginator');
   if (navigation.length !== 0) {
-    returnValue.endOfData = navigation[0].children[navigation[0].children.length - 1].nodeName !== 'a';
+    returnValue.endOfData = !navigation[0].children[0].children[navigation[0].children[0].children.length - 1].children[0].attributes.length;
   } else returnValue.endOfData = true;
   return returnValue;
 }
@@ -43,7 +53,7 @@ function ScrapeSearch(pageHtml) {
   content = pageHtml.dom.getElementById('dle-content');
   if (content) {
     //content.getElementsByClassName('titlelast');
-    content.getElementByClassName('titlelast').forEach(function(e) {
+    content.getElementByClassName('titlelast').forEach(function (e) {
       returnValue.push({
         url: e.getElementByTagName('a')[0].attributes.getNamedItem('href').value,
         title: e.getElementByTagName('a')[0].attributes.getNamedItem('title').value
@@ -52,9 +62,9 @@ function ScrapeSearch(pageHtml) {
     });
   }
   //document.getElementsByClassName("fr_navigation")[0].children[document.getElementsByClassName("fr_navigation")[0].children.length - 1].nodeName
-  var navigation = pageHtml.dom.getElementByClassName('navigation');
+  var navigation = pageHtml.dom.getElementByClassName('pagination');
   if (navigation.length !== 0) {
-    returnValue.endOfData = navigation[0].children[navigation[0].children.length - 1].nodeName !== 'a';
+    returnValue.endOfData = navigation[0].children[navigation[0].children.length - 1].nodeName !== 'A';
   } else returnValue.endOfData = true;
   return returnValue;
 }
@@ -68,14 +78,14 @@ function populateItemsFromList(page, list) {
     page.appendItem(PREFIX + ':moviepage:' + JSON.stringify(list[i]), 'video', {
       title: list[i].title,
       description: list[i].description,
-      icon: list[i].icon,
-      logo: list[i].icon
+      icon: /^http/.test(list[i].icon) ? list[i].icon : BASE_URL + list[i].icon,
+      logo: /^http/.test(list[i].icon) ? list[i].icon : BASE_URL + list[i].icon,
     });
     page.entries++;
   }
 }
 
-exports.list = function(page, params) {
+exports.list = function (page, params) {
   url = params.page ? params.href + params.page : params.href; //+ "/";
   page.loading = true;
   page.metadata.logo = LOGO;
@@ -94,23 +104,13 @@ exports.list = function(page, params) {
       'params.href': params.href
     });
     url = params.page ? params.href + params.page : params.href; //+ "/";
-    log.d('url=' + url); //http://getmovie.cc/serials-anime/page/2/
-    // var resp = http.request(BASE_URL + url);
-    // pageHtml = {
-    //   text: resp,
-    //   dom: html.parse(resp).root
-    // };
-    // /do=search/.test(url) ? list = ScrapeSearch(pageHtml) : list = ScrapeList(pageHtml);
-    // populateItemsFromList(page, list);
-    // nextPage++;
-    // params.page = "/page/" + nextPage;
-    // page.haveMore(list !== undefined && list.endOfData !== undefined && !list.endOfData);
-    api.call(page, BASE_URL + url, null, function(pageHtml) {
+    log.d('url=' + url);
+    api.call(page, BASE_URL + url, null, function (pageHtml) {
       console.log(pageHtml);
       /do=search/.test(url) ? (list = ScrapeSearch(pageHtml)) : (list = ScrapeList(pageHtml));
       populateItemsFromList(page, list);
       nextPage++;
-      params.page = '/page/' + nextPage;
+      params.page = '&cstart=' + nextPage;
       page.haveMore(list !== undefined && list.endOfData !== undefined && !list.endOfData);
     });
     page.loading = false;
@@ -120,7 +120,7 @@ exports.list = function(page, params) {
 };
 // vyzov s url
 // PREFIX:moviepage:url
-exports.moviepage = function(page, mdata) {
+exports.moviepage = function (page, mdata) {
   page.loading = true;
   page.type = 'directory';
   /{"url":"/.test(mdata) ? (data = JSON.parse(mdata)) : (data.url = mdata);
@@ -155,18 +155,27 @@ exports.moviepage = function(page, mdata) {
       log.d(err.stack);
     }
   }
-  trailer(page);
+ // trailer(page);
   videoLinks(page);
   poxozhie(page);
   page.loading = false;
 };
+
 function videoLinks(page) {
   try {
-    var seed = pageHtml.dom.getElementByClassName('frsks')[0].textContent;
-    var peer = pageHtml.dom.getElementByClassName('frskp')[0].textContent;
-    var links = pageHtml.dom.getElementByClassName('mdow')[0].children;
-    links.forEach(function(e) {
-      uri = e.attributes.getNamedItem('href').value.replace('/engine/', BASE_URL + '/engine/');
+    var seed = pageHtml.dom.getElementByClassName('floatright gr')[0].textContent;
+    var peer = pageHtml.dom.getElementByClassName('floatright red rd')[0].textContent;
+
+    // [...document.getElementsByClassName("modtor")[0].children].forEach(function (e) {
+    //   console.log({
+    //     url: e.attributes.getNamedItem("href").value,
+    //     title: e.textContent
+
+    //   })
+    // });
+    var links = pageHtml.dom.getElementByClassName('modtor')[0].children;
+    links.forEach(function (e) {
+      uri = e.attributes.getNamedItem('href').value.replace('/index.php', BASE_URL + '/index.php');
       title = e.textContent.replace('Скачать торрент', 'Торрент ссылка ' + '[' + seed + '/' + peer + ']');
       page.appendItem(uri, 'directory', {
         title: title
@@ -194,7 +203,7 @@ function trailer(page) {
 function poxozhie(page) {
   try {
     // dobovlyaem seporator poxozhie
-    fr_rela = pageHtml.dom.getElementByClassName('fr_rela')[0];
+    fr_rela = pageHtml.dom.getElementByClassName('tables3 w100p')[0];
     if (fr_rela) {
       page.appendItem('', 'separator', {
         title: 'Похожие'
@@ -202,17 +211,17 @@ function poxozhie(page) {
       //obrabotka spiska
       //nagladnyj primer v chrome  http://freerutor.org/497873-plohoy-frenk-2017-web-dlrip
       /*
-      [... document.getElementsByClassName('fr_rela')[0].getElementsByTagName("a")].forEach(function (e) {
+      [... document.getElementsByClassName('first')].forEach(function (e) {
       console.log({
-        url: e.attributes.getNamedItem("href").value,
-        title: e.attributes.getNamedItem("title").value,
+        url: e.getElementsByTagName('a')[0].attributes.getNamedItem("href").value,
+        title: e.getElementsByTagName('a')[0].textContent,
       });
     });
     */
-      fr_rela.getElementByTagName('a').forEach(function(e) {
+      fr_rela.getElementByClassName('first').forEach(function (e) {
         data = {
-          url: e.attributes.getNamedItem('href').value,
-          title: e.attributes.getNamedItem('title').value
+          url: e.getElementByTagName('a')[0].attributes.getNamedItem("href").value,
+          title: e.getElementByTagName('a')[0].textContent
         };
         page.appendItem(PREFIX + ':moviepage:' + JSON.stringify(data), 'directory', {
           title: data.title
