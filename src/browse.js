@@ -36,7 +36,7 @@ function ScrapeList(pageHtml) {
         url: e.getElementByTagName('a')[0].attributes.getNamedItem('href').value,
         title: e.getElementByTagName('img')[0].attributes.getNamedItem('alt').value,
         icon: e.getElementByTagName('img')[0].attributes.getNamedItem('src').value,
-       // description: desc
+        // description: desc
       });
     });
   }
@@ -50,14 +50,15 @@ function ScrapeList(pageHtml) {
 //obrabotka spiska dlya poiska
 function ScrapeSearch(pageHtml) {
   var returnValue = [];
+  //document.getElementById('dle-content')
   content = pageHtml.dom.getElementById('dle-content');
   if (content) {
     //content.getElementsByClassName('titlelast');
-    content.getElementByClassName('titlelast').forEach(function (e) {
+    content.getElementByClassName('first bg').forEach(function (e) {
       returnValue.push({
-        url: e.getElementByTagName('a')[0].attributes.getNamedItem('href').value,
-        title: e.getElementByTagName('a')[0].attributes.getNamedItem('title').value
-        // icon: e.getElementByTagName("img")[0].attributes.getNamedItem("src").value,
+        url: e.getElementByTagName('a')[1].attributes.getNamedItem('href').value,
+        title: e.getElementByTagName('a')[1].textContent,
+        icon: e.getElementByTagName("img")[0].attributes.getNamedItem("src").value,
       });
     });
   }
@@ -151,11 +152,11 @@ exports.moviepage = function (page, mdata) {
         page.metadata.background = fr_hid.getElementByTagName('a')[0].attributes.getNamedItem('href').value;
       }
     } catch (err) {
-      log.d('oshibka v videoLinks');
+      log.d('oshibka v BG');
       log.d(err.stack);
     }
   }
- // trailer(page);
+  // trailer(page);
   videoLinks(page);
   poxozhie(page);
   page.loading = false;
@@ -176,7 +177,7 @@ function videoLinks(page) {
     var links = pageHtml.dom.getElementByClassName('modtor')[0].children;
     links.forEach(function (e) {
       uri = e.attributes.getNamedItem('href').value.replace('/index.php', BASE_URL + '/index.php');
-      title = e.textContent.replace('Скачать торрент', 'Торрент ссылка ' + '[' + seed + '/' + peer + ']');
+      title = e.textContent.replace('СКАЧАТЬ ТОРРЕНТ', 'Торрент ссылка ' + '[' + seed + '/' + peer + ']');
       page.appendItem(uri, 'directory', {
         title: title
       });

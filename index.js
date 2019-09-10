@@ -89,27 +89,28 @@ new page.Route(PREFIX + ':moviepage:(.*)', function (page, data) {
 });
 
 //put' dlya obrabotki search so stranicy plaga
-// new page.Route(PREFIX + ':search:(.*)', function(page, query) {
-//page.metadata.icon = LOGO;
-//page.metadata.title = 'Search results for: ' + query;
-////  page.type = 'directory';
-////index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=lost
-//browse.list(page, {
-//  href: '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=' + query,
-//  title: query,
-//  search: 1
-//});
-// });
-// // seacher dlya globalnogo poiska
-// page.Searcher(PREFIX, LOGO, function(page, query) {
-//page.metadata.icon = LOGO;
-////page.metadata.title = 'Search results for: ' + query;
-//browse.list(page, {
-//  href: '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=' + query,
-//  title: query,
-//  search: 1
-//});
-// });
+new page.Route(PREFIX + ':search:(.*)', function (page, query) {
+  page.metadata.icon = LOGO;
+  page.metadata.title = 'Search results for: ' + query;
+  //  page.type = 'directory';
+  //index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=lost
+  //https://labtor.tv/index.php?do=search&subaction=search&search_start=0&full_search=1&result_from=1&story=
+  browse.list(page, {
+    href: '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=' + query,
+    title: query,
+    search: 1
+  });
+});
+// seacher dlya globalnogo poiska
+page.Searcher(PREFIX, LOGO, function (page, query) {
+  page.metadata.icon = LOGO;
+  //page.metadata.title = 'Search results for: ' + query;
+  browse.list(page, {
+    href: '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=' + query,
+    title: query,
+    search: 1
+  });
+});
 
 // Landing page
 //startovay stranica plagina
@@ -133,10 +134,10 @@ new page.Route(PREFIX + ':start', function (page) {
 
 
 
-  // // dobodlyaen poisk na start page bydet vyzavat' uri PREFIX + ":search:"+zapros
-  // page.appendItem(PREFIX + ':search:', 'search', {
-  //   title: 'Search freerutor'
-  // });
+  // dobodlyaen poisk na start page bydet vyzavat' uri PREFIX + ":search:"+zapros
+  page.appendItem(PREFIX + ':search:', 'search', {
+    title: 'Search freerutor'
+  });
 
   page.appendItem(PREFIX + ":browse:/index.php?do=cat&category=films-tor:Фильмы SD", "directory", {
     title: "Фильмы SD"
